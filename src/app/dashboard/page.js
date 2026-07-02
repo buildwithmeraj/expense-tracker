@@ -151,14 +151,18 @@ export default async function DashboardPage() {
       )}
 
       {hasAnyData && (
-        <div className="grid items-start gap-6 lg:grid-cols-2">
+        // No items-start: cards in the same row stretch to equal height,
+        // and chart contents center in the extra space via my-auto.
+        <div className="grid gap-6 lg:grid-cols-2">
           {trends.map(({ currency, months }) => (
             <div key={currency.code} className="card bg-base-100 shadow-sm">
               <div className="card-body gap-2">
                 <h2 className="card-title text-base">
                   Last 6 months — {currency.label} ({currency.symbol})
                 </h2>
-                <TrendChart months={months} currency={currency.code} />
+                <div className="my-auto">
+                  <TrendChart months={months} currency={currency.code} />
+                </div>
               </div>
             </div>
           ))}
@@ -169,7 +173,9 @@ export default async function DashboardPage() {
                 <h2 className="card-title text-base">
                   This month by category ({currency.symbol})
                 </h2>
-                <DonutChart slices={slices} currency={currency.code} />
+                <div className="my-auto">
+                  <DonutChart slices={slices} currency={currency.code} />
+                </div>
               </div>
             </div>
           ))}
