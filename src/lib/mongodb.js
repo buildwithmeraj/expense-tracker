@@ -20,8 +20,18 @@ if (process.env.NODE_ENV === "development") {
   client = new MongoClient(uri);
 }
 
+let indexesEnsured;
+
 export function getDb() {
-  return client.db(DB_NAME);
+  const db = client.db(DB_NAME);
+  // Fire-and-forget, once per process: keeps per-user queries indexed as
+  // data grows. Failures are non-fatal — indexes are a perf concern only.
+  indexesEnsured ??= Promise.allSettled([
+    db.collection("expenses").createIndex({ userId: 1, date: -1 }),
+    db.collection("incomes").createIndex({ userId: 1, date: -1 }),
+    db.collection("debts").createIndex({ userId: 1, status: 1, date: -1 }),
+  ]);
+  return db;
 }
 
 export default client;

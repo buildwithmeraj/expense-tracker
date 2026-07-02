@@ -94,14 +94,16 @@ export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user) redirect("/");
 
-  const [expenses, incomes, debts] = await Promise.all([
-    expenseStore.list(session.user.id),
-    incomeStore.list(session.user.id),
-    listDebts(session.user.id),
-  ]);
-
   const now = today();
   const ym = monthOf(now);
+  // Everything the dashboard shows lives inside the 6-month trend window.
+  const since = `${addMonths(ym, -5)}-01`;
+
+  const [expenses, incomes, debts] = await Promise.all([
+    expenseStore.list(session.user.id, { since }),
+    incomeStore.list(session.user.id, { since }),
+    listDebts(session.user.id),
+  ]);
   const monthExpenses = expenses.filter((e) => e.date.startsWith(ym));
   const monthIncomes = incomes.filter((e) => e.date.startsWith(ym));
 

@@ -7,9 +7,11 @@ function createEntryStore(collectionName) {
   const collection = () => getDb().collection(collectionName);
 
   return {
-    async list(userId) {
+    // `since` (YYYY-MM-DD) limits the query window, e.g. for the dashboard.
+    async list(userId, { since } = {}) {
+      const filter = since ? { userId, date: { $gte: since } } : { userId };
       const docs = await collection()
-        .find({ userId })
+        .find(filter)
         .sort({ date: -1, createdAt: -1 })
         .toArray();
 
