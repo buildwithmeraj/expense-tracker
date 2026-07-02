@@ -4,7 +4,7 @@ import { IconArrowRight, IconWallet } from "@tabler/icons-react";
 import { auth } from "@/auth";
 import { expenseStore, incomeStore } from "@/lib/entries";
 import { listDebts } from "@/lib/debts";
-import { listSubscriptions } from "@/lib/subscriptions";
+import { listSubscriptions, needsAttention } from "@/lib/subscriptions";
 import { addDays, addMonths, monthOf } from "@/lib/dateRange";
 import { formatDate, formatMoney, sumByCurrency, today } from "@/lib/format";
 import { CURRENCIES } from "@/lib/currencies";
@@ -107,8 +107,8 @@ export default async function DashboardPage() {
     listDebts(session.user.id),
     listSubscriptions(session.user.id),
   ]);
-  const dueSubscriptions = subscriptions.filter(
-    (s) => s.nextDue <= addDays(now, 7)
+  const dueSubscriptions = subscriptions.filter((s) =>
+    needsAttention(s, now, addDays(now, 7))
   );
   const monthExpenses = expenses.filter((e) => e.date.startsWith(ym));
   const monthIncomes = incomes.filter((e) => e.date.startsWith(ym));

@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { auth, signIn, signOut } from "@/auth";
 import { categoriesFor } from "@/lib/categories";
 import { CURRENCIES } from "@/lib/currencies";
-import { addCycle } from "@/lib/dateRange";
+import { addCycle, addDays } from "@/lib/dateRange";
+import { today } from "@/lib/format";
 import { expenseStore, incomeStore } from "@/lib/entries";
 import {
   deleteDebtById,
@@ -17,6 +18,7 @@ import {
   deleteSubscriptionById,
   getSubscriptionById,
   insertSubscription,
+  snoozeSubscriptionById,
   updateSubscriptionById,
 } from "@/lib/subscriptions";
 
@@ -216,6 +218,18 @@ export async function markSubscriptionPaid(formData) {
     });
   }
 
+  SUBSCRIPTION_PATHS.forEach(revalidatePath);
+}
+
+// Hides a subscription from the due alert for N days; the list keeps
+// showing it with a "Snoozed" badge.
+export async function snoozeSubscription(formData) {
+  const user = await requireUser();
+  const id = formData.get("id")?.toString();
+  const days = Number(formData.get("days"));
+  if (!id || ![1, 3, 7].includes(days)) return;
+
+  await snoozeSubscriptionById(user.id, id, addDays(today(), days));
   SUBSCRIPTION_PATHS.forEach(revalidatePath);
 }
 

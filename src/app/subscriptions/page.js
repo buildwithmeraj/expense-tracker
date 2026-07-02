@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { listSubscriptions } from "@/lib/subscriptions";
+import { listSubscriptions, needsAttention } from "@/lib/subscriptions";
 import { addDays } from "@/lib/dateRange";
 import { sumByCurrency, today } from "@/lib/format";
 import MoneyAmounts from "@/components/MoneyAmounts";
@@ -17,7 +17,7 @@ export default async function SubscriptionsPage() {
   const subscriptions = await listSubscriptions(session.user.id);
   const now = today();
   const dueSoonEnd = addDays(now, 7);
-  const due = subscriptions.filter((s) => s.nextDue <= dueSoonEnd);
+  const due = subscriptions.filter((s) => needsAttention(s, now, dueSoonEnd));
   const monthly = subscriptions.filter((s) => s.cycle === "monthly");
   const yearly = subscriptions.filter((s) => s.cycle === "yearly");
 

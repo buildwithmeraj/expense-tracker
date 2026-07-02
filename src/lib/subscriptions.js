@@ -19,8 +19,25 @@ export async function listSubscriptions(userId) {
     cycle: s.cycle,
     category: s.category,
     nextDue: s.nextDue,
+    snoozedUntil: s.snoozedUntil ?? null,
     note: s.note ?? "",
   }));
+}
+
+// Due within the alert horizon and not currently snoozed.
+export function needsAttention(subscription, today, horizonEnd) {
+  return (
+    subscription.nextDue <= horizonEnd &&
+    (!subscription.snoozedUntil || subscription.snoozedUntil <= today)
+  );
+}
+
+export async function snoozeSubscriptionById(userId, id, snoozedUntil) {
+  const { matchedCount } = await collection().updateOne(
+    { _id: new ObjectId(id), userId },
+    { $set: { snoozedUntil } }
+  );
+  return matchedCount > 0;
 }
 
 export async function insertSubscription(userId, subscription) {
@@ -48,7 +65,7 @@ export async function getSubscriptionById(userId, id) {
 export async function advanceSubscription(userId, id, expectedDue, nextDue) {
   const { matchedCount } = await collection().updateOne(
     { _id: new ObjectId(id), userId, nextDue: expectedDue },
-    { $set: { nextDue, lastPaidAt: new Date() } }
+    { $set: { nextDue, lastPaidAt: new Date() }, $unset: { snoozedUntil: "" } }
   );
   return matchedCount > 0;
 }

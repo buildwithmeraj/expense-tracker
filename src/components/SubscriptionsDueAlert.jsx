@@ -1,7 +1,13 @@
 import Link from "next/link";
-import { IconBellRinging } from "@tabler/icons-react";
-import { markSubscriptionPaid } from "@/app/actions";
+import { IconBellRinging, IconChevronDown } from "@tabler/icons-react";
+import { markSubscriptionPaid, snoozeSubscription } from "@/app/actions";
 import { formatDate, formatMoney } from "@/lib/format";
+
+const SNOOZE_OPTIONS = [
+  { days: 1, label: "1 day" },
+  { days: 3, label: "3 days" },
+  { days: 7, label: "1 week" },
+];
 
 // Warning banner listing due/overdue subscriptions. Each stays here until
 // its "Mark paid" is clicked (which logs the expense and advances the date).
@@ -27,12 +33,36 @@ export default function SubscriptionsDueAlert({ due, today, showManageLink = tru
                   ? `was due ${formatDate(subscription.nextDue)}`
                   : `due ${formatDate(subscription.nextDue)}`}
               </span>
-              <form action={markSubscriptionPaid} className="ml-auto">
-                <input type="hidden" name="id" value={subscription.id} />
-                <button type="submit" className="btn btn-outline btn-xs">
-                  Mark paid
-                </button>
-              </form>
+              <span className="ml-auto flex items-center gap-1">
+                <form action={markSubscriptionPaid}>
+                  <input type="hidden" name="id" value={subscription.id} />
+                  <button type="submit" className="btn btn-outline btn-xs">
+                    Mark paid
+                  </button>
+                </form>
+                <div className="dropdown dropdown-end">
+                  <div tabIndex={0} role="button" className="btn btn-outline btn-xs">
+                    Snooze
+                    <IconChevronDown size={12} aria-hidden="true" />
+                  </div>
+                  <ul
+                    tabIndex={0}
+                    className="dropdown-content menu z-40 mt-1 w-32 rounded-box bg-base-100 p-1 text-base-content shadow-lg"
+                  >
+                    {SNOOZE_OPTIONS.map(({ days, label }) => (
+                      <li key={days}>
+                        <form action={snoozeSubscription}>
+                          <input type="hidden" name="id" value={subscription.id} />
+                          <input type="hidden" name="days" value={days} />
+                          <button type="submit" className="w-full text-left">
+                            {label}
+                          </button>
+                        </form>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </span>
             </li>
           ))}
         </ul>

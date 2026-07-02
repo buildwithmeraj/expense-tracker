@@ -45,6 +45,8 @@ export default function SubscriptionList({ subscriptions, today, dueSoonEnd }) {
                 const CategoryIcon = category.icon;
                 const overdue = subscription.nextDue < today;
                 const dueSoon = !overdue && subscription.nextDue <= dueSoonEnd;
+                const snoozed =
+                  subscription.snoozedUntil && subscription.snoozedUntil > today;
                 return (
                   <tr key={subscription.id} className="hover">
                     <td>
@@ -66,6 +68,14 @@ export default function SubscriptionList({ subscriptions, today, dueSoonEnd }) {
                         {formatDate(subscription.nextDue)}
                         {overdue && <span className="badge badge-error badge-sm">Overdue</span>}
                         {dueSoon && <span className="badge badge-warning badge-sm">Due soon</span>}
+                        {snoozed && (
+                          <span
+                            className="badge badge-ghost badge-sm"
+                            title={`Alert snoozed until ${formatDate(subscription.snoozedUntil)}`}
+                          >
+                            Snoozed
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="text-right font-semibold whitespace-nowrap">
