@@ -2,14 +2,24 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { IconPencil, IconReceipt, IconTrash } from "@tabler/icons-react";
-import { deleteExpense, updateExpense } from "@/app/actions";
+import {
+  deleteExpense,
+  deleteIncome,
+  updateExpense,
+  updateIncome,
+} from "@/app/actions";
 import { getCategory } from "@/lib/categories";
 import { formatDate, formatMoney } from "@/lib/format";
-import ExpenseFields from "./ExpenseFields";
+import EntryFields from "./EntryFields";
 
-function EditExpenseDialog({ expense, onClose }) {
+const KIND_CONFIG = {
+  expense: { update: updateExpense, remove: deleteExpense, noun: "expense" },
+  income: { update: updateIncome, remove: deleteIncome, noun: "income" },
+};
+
+function EditEntryDialog({ kind, entry, onClose }) {
   const dialogRef = useRef(null);
-  const [state, formAction, pending] = useActionState(updateExpense, null);
+  const [state, formAction, pending] = useActionState(KIND_CONFIG[kind].update, null);
 
   useEffect(() => {
     dialogRef.current?.showModal();
@@ -22,10 +32,10 @@ function EditExpenseDialog({ expense, onClose }) {
   return (
     <dialog ref={dialogRef} className="modal" onClose={onClose}>
       <div className="modal-box">
-        <h3 className="mb-2 text-lg font-bold">Edit expense</h3>
+        <h3 className="mb-2 text-lg font-bold">Edit {KIND_CONFIG[kind].noun}</h3>
         <form action={formAction} className="flex flex-col gap-3">
-          <input type="hidden" name="id" value={expense.id} />
-          <ExpenseFields defaults={expense} />
+          <input type="hidden" name="id" value={entry.id} />
+          <EntryFields kind={kind} defaults={entry} />
           {state?.error && (
             <div role="alert" className="alert alert-error py-2 text-sm">
               {state.error}
@@ -49,16 +59,17 @@ function EditExpenseDialog({ expense, onClose }) {
   );
 }
 
-export default function ExpenseList({ expenses }) {
+export default function EntryList({ kind, entries }) {
   const [editing, setEditing] = useState(null);
+  const { remove, noun } = KIND_CONFIG[kind];
 
-  if (expenses.length === 0) {
+  if (entries.length === 0) {
     return (
       <div className="card bg-base-100 shadow-sm">
         <div className="card-body items-center py-16 text-center">
           <IconReceipt size={40} className="opacity-40" aria-hidden="true" />
-          <h2 className="card-title">No expenses yet</h2>
-          <p className="opacity-70">Add your first expense to start tracking.</p>
+          <h2 className="card-title">No {noun}s yet</h2>
+          <p className="opacity-70">Add your first {noun} to start tracking.</p>
         </div>
       </div>
     );
@@ -71,27 +82,29 @@ export default function ExpenseList({ expenses }) {
           <table className="table">
             <thead>
               <tr>
-                <th>Expense</th>
-                <th className="hidden sm:table-cell">Category</th>
+                <th className="capitalize">{noun}</th>
+                <th className="hidden sm:table-cell">
+                  {kind === "income" ? "Source" : "Category"}
+                </th>
                 <th className="hidden sm:table-cell">Date</th>
                 <th className="text-right">Amount</th>
                 <th className="w-20" />
               </tr>
             </thead>
             <tbody>
-              {expenses.map((expense) => {
-                const category = getCategory(expense.category);
+              {entries.map((entry) => {
+                const category = getCategory(kind, entry.category);
                 const CategoryIcon = category.icon;
                 return (
-                  <tr key={expense.id} className="hover">
+                  <tr key={entry.id} className="hover">
                     <td>
-                      <div className="font-medium">{expense.title}</div>
+                      <div className="font-medium">{entry.title}</div>
                       <div className="flex items-center gap-1 text-xs opacity-60 sm:hidden">
                         <CategoryIcon size={12} aria-hidden="true" />
-                        {formatDate(expense.date)}
+                        {formatDate(entry.date)}
                       </div>
-                      {expense.note && (
-                        <div className="max-w-52 truncate text-xs opacity-60">{expense.note}</div>
+                      {entry.note && (
+                        <div className="max-w-52 truncate text-xs opacity-60">{entry.note}</div>
                       )}
                     </td>
                     <td className="hidden sm:table-cell">
@@ -101,32 +114,32 @@ export default function ExpenseList({ expenses }) {
                       </span>
                     </td>
                     <td className="hidden whitespace-nowrap sm:table-cell">
-                      {formatDate(expense.date)}
+                      {formatDate(entry.date)}
                     </td>
                     <td className="text-right font-semibold whitespace-nowrap">
-                      {formatMoney(expense.amount)}
+                      {formatMoney(entry.amount, entry.currency)}
                     </td>
                     <td>
                       <div className="flex justify-end gap-1">
                         <button
                           type="button"
                           className="btn btn-ghost btn-square btn-xs"
-                          aria-label={`Edit ${expense.title}`}
-                          onClick={() => setEditing(expense)}
+                          aria-label={`Edit ${entry.title}`}
+                          onClick={() => setEditing(entry)}
                         >
                           <IconPencil size={16} aria-hidden="true" />
                         </button>
                         <form
-                          action={deleteExpense}
+                          action={remove}
                           onSubmit={(e) => {
-                            if (!confirm(`Delete "${expense.title}"?`)) e.preventDefault();
+                            if (!confirm(`Delete "${entry.title}"?`)) e.preventDefault();
                           }}
                         >
-                          <input type="hidden" name="id" value={expense.id} />
+                          <input type="hidden" name="id" value={entry.id} />
                           <button
                             type="submit"
                             className="btn btn-ghost btn-square btn-xs text-error"
-                            aria-label={`Delete ${expense.title}`}
+                            aria-label={`Delete ${entry.title}`}
                           >
                             <IconTrash size={16} aria-hidden="true" />
                           </button>
@@ -141,9 +154,10 @@ export default function ExpenseList({ expenses }) {
         </div>
       </div>
       {editing && (
-        <EditExpenseDialog
+        <EditEntryDialog
           key={editing.id}
-          expense={editing}
+          kind={kind}
+          entry={editing}
           onClose={() => setEditing(null)}
         />
       )}

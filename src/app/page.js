@@ -7,8 +7,8 @@ import SignInButton from "@/components/SignInButton";
 const features = [
   {
     icon: IconPencilPlus,
-    title: "Log in seconds",
-    text: "Add an expense with a title, amount, and category — done before you pocket the receipt.",
+    title: "Log everything",
+    text: "Expenses, income, and debts — in dollars ($) or taka (৳), logged in seconds.",
   },
   {
     icon: IconChartBar,

@@ -1,23 +1,27 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
-import { addExpense } from "@/app/actions";
-import ExpenseFields from "./ExpenseFields";
+import { addExpense, addIncome } from "@/app/actions";
+import EntryFields from "./EntryFields";
 
-export default function ExpenseForm() {
+const ADD_ACTIONS = { expense: addExpense, income: addIncome };
+
+export default function EntryForm({ kind }) {
   const formRef = useRef(null);
-  const [state, formAction, pending] = useActionState(addExpense, null);
+  const [state, formAction, pending] = useActionState(ADD_ACTIONS[kind], null);
 
   useEffect(() => {
     if (state?.success) formRef.current?.reset();
   }, [state]);
 
+  const noun = kind === "income" ? "income" : "expense";
+
   return (
     <div className="card bg-base-100 shadow-sm">
       <div className="card-body">
-        <h2 className="card-title">Add expense</h2>
+        <h2 className="card-title">Add {noun}</h2>
         <form ref={formRef} action={formAction} className="flex flex-col gap-3">
-          <ExpenseFields />
+          <EntryFields kind={kind} />
           {state?.error && (
             <div role="alert" className="alert alert-error py-2 text-sm">
               {state.error}
@@ -25,7 +29,7 @@ export default function ExpenseForm() {
           )}
           <button type="submit" className="btn btn-primary" disabled={pending}>
             {pending && <span className="loading loading-spinner loading-sm" />}
-            Add expense
+            Add {noun}
           </button>
         </form>
       </div>

@@ -1,21 +1,25 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { getExpenses } from "@/lib/expenses";
+import { expenseStore, incomeStore } from "@/lib/entries";
 import { currentMonth } from "@/lib/format";
 import SummaryCards from "@/components/SummaryCards";
 import CategoryBreakdown from "@/components/CategoryBreakdown";
-import ExpenseForm from "@/components/ExpenseForm";
-import ExpenseList from "@/components/ExpenseList";
+import EntryForm from "@/components/EntryForm";
+import EntryList from "@/components/EntryList";
 
-export const metadata = { title: "Dashboard" };
+export const metadata = { title: "Expenses" };
 
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user) redirect("/");
 
-  const expenses = await getExpenses(session.user.id);
+  const [expenses, incomes] = await Promise.all([
+    expenseStore.list(session.user.id),
+    incomeStore.list(session.user.id),
+  ]);
   const month = currentMonth();
   const monthExpenses = expenses.filter((e) => e.date.startsWith(month));
+  const monthIncomes = incomes.filter((e) => e.date.startsWith(month));
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-6 px-4 py-8">
@@ -26,13 +30,17 @@ export default async function DashboardPage() {
         <p className="opacity-70">Here&apos;s your spending at a glance.</p>
       </div>
 
-      <SummaryCards expenses={expenses} monthExpenses={monthExpenses} />
+      <SummaryCards monthExpenses={monthExpenses} monthIncomes={monthIncomes} />
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <ExpenseList expenses={expenses} />
+        <EntryList kind="expense" entries={expenses} />
         <div className="space-y-6 lg:order-last">
-          <ExpenseForm />
-          <CategoryBreakdown monthExpenses={monthExpenses} />
+          <EntryForm kind="expense" />
+          <CategoryBreakdown
+            kind="expense"
+            items={monthExpenses}
+            title="This month by category"
+          />
         </div>
       </div>
     </div>

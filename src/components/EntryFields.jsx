@@ -1,7 +1,8 @@
-import { CATEGORIES } from "@/lib/categories";
+import { categoriesFor } from "@/lib/categories";
+import { CURRENCIES } from "@/lib/currencies";
 
-// Shared inputs for the add and edit forms. `defaults` pre-fills for editing.
-export default function ExpenseFields({ defaults = {} }) {
+// Shared inputs for expense and income forms. `defaults` pre-fills for editing.
+export default function EntryFields({ kind, defaults = {} }) {
   return (
     <>
       <label className="form-control w-full">
@@ -11,13 +12,13 @@ export default function ExpenseFields({ defaults = {} }) {
           name="title"
           required
           maxLength={100}
-          placeholder="e.g. Groceries"
+          placeholder={kind === "income" ? "e.g. July salary" : "e.g. Groceries"}
           defaultValue={defaults.title}
           className="input input-bordered w-full"
         />
       </label>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-[1fr_7rem] gap-3">
         <label className="form-control w-full">
           <span className="label label-text">Amount</span>
           <input
@@ -33,6 +34,24 @@ export default function ExpenseFields({ defaults = {} }) {
         </label>
 
         <label className="form-control w-full">
+          <span className="label label-text">Currency</span>
+          <select
+            name="currency"
+            required
+            defaultValue={defaults.currency ?? "USD"}
+            className="select select-bordered w-full"
+          >
+            {CURRENCIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.symbol} {c.code}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <label className="form-control w-full">
           <span className="label label-text">Date</span>
           <input
             type="date"
@@ -43,23 +62,25 @@ export default function ExpenseFields({ defaults = {} }) {
             className="input input-bordered w-full"
           />
         </label>
-      </div>
 
-      <label className="form-control w-full">
-        <span className="label label-text">Category</span>
-        <select
-          name="category"
-          required
-          defaultValue={defaults.category ?? "food"}
-          className="select select-bordered w-full"
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c.value} value={c.value}>
-              {c.label}
-            </option>
-          ))}
-        </select>
-      </label>
+        <label className="form-control w-full">
+          <span className="label label-text">
+            {kind === "income" ? "Source" : "Category"}
+          </span>
+          <select
+            name="category"
+            required
+            defaultValue={defaults.category ?? categoriesFor(kind)[0].value}
+            className="select select-bordered w-full"
+          >
+            {categoriesFor(kind).map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
 
       <label className="form-control w-full">
         <span className="label label-text">
