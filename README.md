@@ -2,7 +2,7 @@
 
 A personal expense tracker built with [Next.js 16](https://nextjs.org) (App Router + Server Actions), [MongoDB](https://www.mongodb.com), [NextAuth v5](https://authjs.dev) with Google sign-in, and [daisyUI 5](https://daisyui.com) on Tailwind CSS 4.
 
-Log expenses with categories, see monthly totals and per-category breakdowns, and switch between light/dark themes derived from the app icon.
+Log expenses, income, and debts in dollars ($) or taka (৳), filter any period (today, week, month, year, or a custom range), browse a per-day spending calendar, and switch between light/dark themes derived from the app icon.
 
 ## Setup
 

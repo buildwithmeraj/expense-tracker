@@ -59,7 +59,7 @@ function EditEntryDialog({ kind, entry, onClose }) {
   );
 }
 
-export default function EntryList({ kind, entries }) {
+export default function EntryList({ kind, entries, periodLabel }) {
   const [editing, setEditing] = useState(null);
   const { remove, noun } = KIND_CONFIG[kind];
 
@@ -68,8 +68,12 @@ export default function EntryList({ kind, entries }) {
       <div className="card bg-base-100 shadow-sm">
         <div className="card-body items-center py-16 text-center">
           <IconReceipt size={40} className="opacity-40" aria-hidden="true" />
-          <h2 className="card-title">No {noun}s yet</h2>
-          <p className="opacity-70">Add your first {noun} to start tracking.</p>
+          <h2 className="card-title">No {noun}s found</h2>
+          <p className="opacity-70">
+            {periodLabel
+              ? `Nothing recorded for “${periodLabel}”. Add one or pick another period.`
+              : `Add your first ${noun} to start tracking.`}
+          </p>
         </div>
       </div>
     );

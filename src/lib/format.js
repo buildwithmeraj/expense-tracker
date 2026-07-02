@@ -15,6 +15,16 @@ export function formatMoney(amount, currency = "USD") {
     : `${symbol}${number.format(amount)}`;
 }
 
+const compact = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+// "৳1.2K" — for tight spots like calendar day cells.
+export function compactMoney(amount, currency = "USD") {
+  return `${getCurrency(currency).symbol}${compact.format(amount)}`;
+}
+
 // `date` is a YYYY-MM-DD string; parse it as local time, not UTC.
 export function formatDate(date) {
   return new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
