@@ -150,7 +150,7 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {trends.length > 0 && (
+      {hasAnyData && (
         <div className="grid items-start gap-6 lg:grid-cols-2">
           {trends.map(({ currency, months }) => (
             <div key={currency.code} className="card bg-base-100 shadow-sm">
@@ -162,11 +162,7 @@ export default async function DashboardPage() {
               </div>
             </div>
           ))}
-        </div>
-      )}
 
-      {(donuts.length > 0 || hasAnyData) && (
-        <div className="grid items-start gap-6 lg:grid-cols-2">
           {donuts.map(({ currency, slices }) => (
             <div key={currency.code} className="card bg-base-100 shadow-sm">
               <div className="card-body gap-2">
@@ -178,35 +174,33 @@ export default async function DashboardPage() {
             </div>
           ))}
 
-          {hasAnyData && (
-            <div className="card bg-base-100 shadow-sm">
-              <div className="card-body gap-3">
-                <h2 className="card-title text-base">Debts</h2>
-                <div className="flex flex-col gap-2 text-sm">
-                  <div className="flex items-baseline justify-between">
-                    <span className="opacity-70">You owe</span>
-                    <span className="font-semibold text-error">
-                      <MoneyAmounts totals={youOwe} />
-                    </span>
-                  </div>
-                  <div className="flex items-baseline justify-between">
-                    <span className="opacity-70">Owed to you</span>
-                    <span className="font-semibold text-success">
-                      <MoneyAmounts totals={owedToYou} />
-                    </span>
-                  </div>
-                  <div className="flex items-baseline justify-between">
-                    <span className="opacity-70">Open debts</span>
-                    <span className="font-semibold">{openDebts.length}</span>
-                  </div>
+          <div className="card bg-base-100 shadow-sm">
+            <div className="card-body gap-3">
+              <h2 className="card-title text-base">Debts</h2>
+              <div className="flex flex-col gap-2 text-sm">
+                <div className="flex items-baseline justify-between">
+                  <span className="opacity-70">You owe</span>
+                  <span className="font-semibold text-error">
+                    <MoneyAmounts totals={youOwe} />
+                  </span>
                 </div>
-                <Link href="/debts" className="btn btn-soft btn-primary btn-sm self-start">
-                  Manage debts
-                  <IconArrowRight size={16} aria-hidden="true" />
-                </Link>
+                <div className="flex items-baseline justify-between">
+                  <span className="opacity-70">Owed to you</span>
+                  <span className="font-semibold text-success">
+                    <MoneyAmounts totals={owedToYou} />
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className="opacity-70">Open debts</span>
+                  <span className="font-semibold">{openDebts.length}</span>
+                </div>
               </div>
+              <Link href="/debts" className="btn btn-soft btn-primary btn-sm self-start">
+                Manage debts
+                <IconArrowRight size={16} aria-hidden="true" />
+              </Link>
             </div>
-          )}
+          </div>
 
           {recent.length > 0 && <RecentActivity items={recent} />}
         </div>
