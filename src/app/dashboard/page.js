@@ -4,7 +4,8 @@ import { IconArrowRight, IconWallet } from "@tabler/icons-react";
 import { auth } from "@/auth";
 import { expenseStore, incomeStore } from "@/lib/entries";
 import { listDebts } from "@/lib/debts";
-import { addMonths, monthOf } from "@/lib/dateRange";
+import { listSubscriptions } from "@/lib/subscriptions";
+import { addDays, addMonths, monthOf } from "@/lib/dateRange";
 import { formatDate, formatMoney, sumByCurrency, today } from "@/lib/format";
 import { CURRENCIES } from "@/lib/currencies";
 import { getCategory } from "@/lib/categories";
@@ -12,6 +13,7 @@ import SummaryCards from "@/components/SummaryCards";
 import MoneyAmounts from "@/components/MoneyAmounts";
 import TrendChart from "@/components/TrendChart";
 import DonutChart from "@/components/DonutChart";
+import SubscriptionsDueAlert from "@/components/SubscriptionsDueAlert";
 
 export const metadata = { title: "Dashboard" };
 
@@ -99,11 +101,15 @@ export default async function DashboardPage() {
   // Everything the dashboard shows lives inside the 6-month trend window.
   const since = `${addMonths(ym, -5)}-01`;
 
-  const [expenses, incomes, debts] = await Promise.all([
+  const [expenses, incomes, debts, subscriptions] = await Promise.all([
     expenseStore.list(session.user.id, { since }),
     incomeStore.list(session.user.id, { since }),
     listDebts(session.user.id),
+    listSubscriptions(session.user.id),
   ]);
+  const dueSubscriptions = subscriptions.filter(
+    (s) => s.nextDue <= addDays(now, 7)
+  );
   const monthExpenses = expenses.filter((e) => e.date.startsWith(ym));
   const monthIncomes = incomes.filter((e) => e.date.startsWith(ym));
 
@@ -131,6 +137,8 @@ export default async function DashboardPage() {
         </h1>
         <p className="opacity-70">All your money, at a glance.</p>
       </div>
+
+      <SubscriptionsDueAlert due={dueSubscriptions} today={now} />
 
       <SummaryCards expenses={monthExpenses} incomes={monthIncomes} label="This month" />
 

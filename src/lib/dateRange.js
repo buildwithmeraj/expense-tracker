@@ -27,6 +27,18 @@ export function startOfWeek(day) {
 
 export const monthOf = (day) => day.slice(0, 7);
 
+// Adds calendar months, clamping the day-of-month (Jan 31 + 1mo = Feb 28).
+export function addMonthsToDate(day, n) {
+  const [y, m, d] = day.split("-").map(Number);
+  const target = new Date(y, m - 1 + n, 1);
+  const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+  target.setDate(Math.min(d, lastDay));
+  return toStr(target);
+}
+
+export const addCycle = (day, cycle) =>
+  addMonthsToDate(day, cycle === "yearly" ? 12 : 1);
+
 export function monthBounds(ym) {
   const [y, m] = ym.split("-").map(Number);
   return { start: `${ym}-01`, end: toStr(new Date(y, m, 0)) };

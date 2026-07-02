@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auth, signIn, signOut } from "@/auth";
 import { categoriesFor } from "@/lib/categories";
 import { CURRENCIES } from "@/lib/currencies";
+import { addCycle } from "@/lib/dateRange";
 import { expenseStore, incomeStore } from "@/lib/entries";
 import {
   deleteDebtById,
@@ -11,6 +12,13 @@ import {
   setDebtStatus,
   updateDebtById,
 } from "@/lib/debts";
+import {
+  advanceSubscription,
+  deleteSubscriptionById,
+  getSubscriptionById,
+  insertSubscription,
+  updateSubscriptionById,
+} from "@/lib/subscriptions";
 
 export async function signInWithGoogle() {
   await signIn("google", { redirectTo: "/dashboard" });
@@ -123,6 +131,101 @@ export async function updateIncome(prevState, formData) {
 
 export async function deleteIncome(formData) {
   await removeEntry("income", formData);
+}
+
+// ── Subscriptions ───────────────────────────────────────────────────
+
+const SUBSCRIPTION_PATHS = ["/subscriptions", "/dashboard", "/expenses"];
+
+function parseSubscription(formData) {
+  const name = formData.get("name")?.toString().trim();
+  const cycle = formData.get("cycle")?.toString();
+  const category = formData.get("category")?.toString();
+  const nextDue = formData.get("nextDue")?.toString();
+  const note = formData.get("note")?.toString().trim() ?? "";
+
+  if (!name || name.length > 60) {
+    return { error: "Name is required (max 60 characters)." };
+  }
+  if (!["monthly", "yearly"].includes(cycle)) {
+    return { error: "Pick a billing cycle." };
+  }
+  const { error, amount, currency } = parseAmount(formData);
+  if (error) return { error };
+  if (!categoriesFor("expense").some((c) => c.value === category)) {
+    return { error: "Pick a valid category." };
+  }
+  if (!DATE_RE.test(nextDue)) {
+    return { error: "Pick the next billing date." };
+  }
+  if (note.length > 300) {
+    return { error: "Note is too long (max 300 characters)." };
+  }
+
+  return { subscription: { name, amount, currency, cycle, category, nextDue, note } };
+}
+
+export async function addSubscription(prevState, formData) {
+  const user = await requireUser();
+  const { error, subscription } = parseSubscription(formData);
+  if (error) return { error };
+
+  await insertSubscription(user.id, subscription);
+  SUBSCRIPTION_PATHS.forEach(revalidatePath);
+  return { success: true };
+}
+
+export async function updateSubscription(prevState, formData) {
+  const user = await requireUser();
+  const id = formData.get("id")?.toString();
+  const { error, subscription } = parseSubscription(formData);
+  if (error) return { error };
+
+  const updated = id && (await updateSubscriptionById(user.id, id, subscription));
+  if (!updated) return { error: "Subscription not found." };
+
+  SUBSCRIPTION_PATHS.forEach(revalidatePath);
+  return { success: true };
+}
+
+// Logs the billing as a real expense (dated on the due date), then advances
+// nextDue by one cycle. The conditional advance makes double-submits no-ops.
+export async function markSubscriptionPaid(formData) {
+  const user = await requireUser();
+  const id = formData.get("id")?.toString();
+  if (!id) return;
+
+  const subscription = await getSubscriptionById(user.id, id);
+  if (!subscription) return;
+
+  const paidDue = subscription.nextDue;
+  const advanced = await advanceSubscription(
+    user.id,
+    id,
+    paidDue,
+    addCycle(paidDue, subscription.cycle)
+  );
+  if (advanced) {
+    await expenseStore.insert(user.id, {
+      title: subscription.name,
+      amount: subscription.amount,
+      currency: subscription.currency ?? "USD",
+      category: subscription.category,
+      date: paidDue,
+      note: `${subscription.cycle} subscription`,
+    });
+  }
+
+  SUBSCRIPTION_PATHS.forEach(revalidatePath);
+}
+
+export async function deleteSubscription(formData) {
+  const user = await requireUser();
+  const id = formData.get("id")?.toString();
+  if (id) {
+    await deleteSubscriptionById(user.id, id);
+    SUBSCRIPTION_PATHS.forEach(revalidatePath);
+  }
 }
 
 // ── Debts ───────────────────────────────────────────────────────────

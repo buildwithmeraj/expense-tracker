@@ -30,6 +30,7 @@ export function getDb() {
     db.collection("expenses").createIndex({ userId: 1, date: -1 }),
     db.collection("incomes").createIndex({ userId: 1, date: -1 }),
     db.collection("debts").createIndex({ userId: 1, status: 1, date: -1 }),
+    db.collection("subscriptions").createIndex({ userId: 1, nextDue: 1 }),
   ]);
   return db;
 }
