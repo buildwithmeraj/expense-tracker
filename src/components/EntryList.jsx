@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { IconPencil, IconReceipt, IconTrash } from "@tabler/icons-react";
 import {
   deleteExpense,
@@ -10,58 +10,16 @@ import {
 } from "@/app/actions";
 import { getCategory } from "@/lib/categories";
 import { formatDate, formatMoney } from "@/lib/format";
-import EntryFields from "./EntryFields";
+import EntryDialog from "./EntryDialog";
 
 const KIND_CONFIG = {
   expense: { update: updateExpense, remove: deleteExpense, noun: "expense" },
   income: { update: updateIncome, remove: deleteIncome, noun: "income" },
 };
 
-function EditEntryDialog({ kind, entry, onClose }) {
-  const dialogRef = useRef(null);
-  const [state, formAction, pending] = useActionState(KIND_CONFIG[kind].update, null);
-
-  useEffect(() => {
-    dialogRef.current?.showModal();
-  }, []);
-
-  useEffect(() => {
-    if (state?.success) onClose();
-  }, [state, onClose]);
-
-  return (
-    <dialog ref={dialogRef} className="modal" onClose={onClose}>
-      <div className="modal-box">
-        <h3 className="mb-2 text-lg font-bold">Edit {KIND_CONFIG[kind].noun}</h3>
-        <form action={formAction} className="flex flex-col gap-3">
-          <input type="hidden" name="id" value={entry.id} />
-          <EntryFields kind={kind} defaults={entry} />
-          {state?.error && (
-            <div role="alert" className="alert alert-error py-2 text-sm">
-              {state.error}
-            </div>
-          )}
-          <div className="modal-action mt-2">
-            <button type="button" className="btn btn-ghost" onClick={onClose}>
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={pending}>
-              {pending && <span className="loading loading-spinner loading-sm" />}
-              Save changes
-            </button>
-          </div>
-        </form>
-      </div>
-      <form method="dialog" className="modal-backdrop">
-        <button>close</button>
-      </form>
-    </dialog>
-  );
-}
-
 export default function EntryList({ kind, entries, periodLabel }) {
   const [editing, setEditing] = useState(null);
-  const { remove, noun } = KIND_CONFIG[kind];
+  const { update, remove, noun } = KIND_CONFIG[kind];
 
   if (entries.length === 0) {
     return (
@@ -158,10 +116,14 @@ export default function EntryList({ kind, entries, periodLabel }) {
         </div>
       </div>
       {editing && (
-        <EditEntryDialog
+        <EntryDialog
           key={editing.id}
           kind={kind}
-          entry={editing}
+          action={update}
+          title={`Edit ${noun}`}
+          submitLabel="Save changes"
+          defaults={editing}
+          entryId={editing.id}
           onClose={() => setEditing(null)}
         />
       )}

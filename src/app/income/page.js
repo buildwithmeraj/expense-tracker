@@ -5,7 +5,7 @@ import { inRange, monthOf, resolveRange } from "@/lib/dateRange";
 import { sumByCurrency, today } from "@/lib/format";
 import MoneyAmounts from "@/components/MoneyAmounts";
 import CategoryBreakdown from "@/components/CategoryBreakdown";
-import EntryForm from "@/components/EntryForm";
+import AddEntryButton from "@/components/AddEntryButton";
 import EntryList from "@/components/EntryList";
 import FilterBar from "@/components/FilterBar";
 import MonthCalendar from "@/components/MonthCalendar";
@@ -27,9 +27,12 @@ export default async function IncomePage({ searchParams }) {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-6 px-4 py-8">
-      <div>
-        <h1 className="text-2xl font-bold">Income</h1>
-        <p className="opacity-70">Everything you&apos;ve earned, in one place.</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">Income</h1>
+          <p className="opacity-70">Everything you&apos;ve earned, in one place.</p>
+        </div>
+        <AddEntryButton kind="income" />
       </div>
 
       <FilterBar key={`${range.key}-${range.start}-${range.end}`} range={range} today={now} />
@@ -54,7 +57,6 @@ export default async function IncomePage({ searchParams }) {
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <EntryList kind="income" entries={viewIncomes} periodLabel={range.label} />
         <div className="space-y-6 lg:order-last">
-          <EntryForm kind="income" />
           <MonthCalendar
             items={incomes}
             month={monthOf(range.start)}

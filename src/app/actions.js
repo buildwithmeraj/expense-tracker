@@ -69,7 +69,7 @@ function parseEntry(kind, formData) {
 }
 
 const ENTRY_KINDS = {
-  expense: { store: expenseStore, paths: ["/dashboard"] },
+  expense: { store: expenseStore, paths: ["/expenses", "/dashboard"] },
   income: { store: incomeStore, paths: ["/income", "/dashboard"] },
 };
 
@@ -162,6 +162,7 @@ export async function addDebt(prevState, formData) {
 
   await insertDebt(user.id, debt);
   revalidatePath("/debts");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -175,6 +176,7 @@ export async function updateDebt(prevState, formData) {
   if (!updated) return { error: "Debt not found." };
 
   revalidatePath("/debts");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -185,6 +187,7 @@ export async function toggleDebtStatus(formData) {
   if (id && ["open", "settled"].includes(status)) {
     await setDebtStatus(user.id, id, status);
     revalidatePath("/debts");
+    revalidatePath("/dashboard");
   }
 }
 
@@ -194,5 +197,6 @@ export async function deleteDebt(formData) {
   if (id) {
     await deleteDebtById(user.id, id);
     revalidatePath("/debts");
+    revalidatePath("/dashboard");
   }
 }

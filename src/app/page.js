@@ -50,7 +50,7 @@ export default async function HomePage() {
                 Open your dashboard
               </Link>
             ) : (
-              <SignInButton className="btn-primary btn-lg" />
+              <SignInButton className="btn-soft btn-primary btn-lg" />
             )}
           </div>
         </div>

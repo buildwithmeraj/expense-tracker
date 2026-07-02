@@ -1,8 +1,28 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { signOutAction } from "@/app/actions";
+import { signOut } from "next-auth/react";
+import { IconLogout } from "@tabler/icons-react";
+import { NAV_LINKS } from "./navLinks";
 
 export default function UserMenu({ user }) {
+  const [signingOut, setSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      // No server-action round trip: post the sign-out and hard-navigate
+      // straight to the landing page for a fresh, signed-out render.
+      await signOut({ redirect: false });
+      window.location.href = "/";
+    } catch {
+      setSigningOut(false);
+    }
+  }
+
   return (
     <div className="dropdown dropdown-end">
       <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
@@ -21,21 +41,20 @@ export default function UserMenu({ user }) {
         className="dropdown-content menu z-40 mt-3 w-56 rounded-box bg-base-100 p-2 shadow-lg"
       >
         <li className="menu-title truncate">{user.name ?? user.email}</li>
+        {NAV_LINKS.map(({ href, label }) => (
+          <li key={href}>
+            <Link href={href}>{label}</Link>
+          </li>
+        ))}
         <li>
-          <Link href="/dashboard">Expenses</Link>
-        </li>
-        <li>
-          <Link href="/income">Income</Link>
-        </li>
-        <li>
-          <Link href="/debts">Debts</Link>
-        </li>
-        <li>
-          <form action={signOutAction}>
-            <button type="submit" className="w-full text-left">
-              Sign out
-            </button>
-          </form>
+          <button type="button" onClick={handleSignOut} disabled={signingOut}>
+            {signingOut ? (
+              <span className="loading loading-spinner loading-xs" />
+            ) : (
+              <IconLogout size={16} aria-hidden="true" />
+            )}
+            Sign out
+          </button>
         </li>
       </ul>
     </div>

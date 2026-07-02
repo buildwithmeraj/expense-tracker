@@ -1,6 +1,6 @@
 import { signInWithGoogle } from "@/app/actions";
 
-export default function SignInButton({ className = "btn-primary" }) {
+export default function SignInButton({ className = "btn-soft btn-primary" }) {
   return (
     <form action={signInWithGoogle}>
       <button type="submit" className={`btn ${className}`}>
