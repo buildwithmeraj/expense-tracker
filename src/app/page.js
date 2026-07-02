@@ -56,7 +56,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-5xl px-4 pb-16">
+      <section className="mx-auto w-full max-w-6xl px-4 pb-16">
         <div className="grid gap-4 sm:grid-cols-3">
           {features.map((feature) => (
             <div key={feature.title} className="card bg-base-100 shadow-sm">

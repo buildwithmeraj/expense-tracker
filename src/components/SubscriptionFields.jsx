@@ -1,5 +1,5 @@
 import { categoriesFor } from "@/lib/categories";
-import { CURRENCIES } from "@/lib/currencies";
+import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/currencies";
 
 export default function SubscriptionFields({ defaults = {} }) {
   return (
@@ -37,7 +37,7 @@ export default function SubscriptionFields({ defaults = {} }) {
           <select
             name="currency"
             required
-            defaultValue={defaults.currency ?? "USD"}
+            defaultValue={defaults.currency ?? DEFAULT_CURRENCY}
             className="select select-bordered w-full"
           >
             {CURRENCIES.map((c) => (

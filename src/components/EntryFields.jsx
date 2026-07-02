@@ -1,5 +1,5 @@
 import { categoriesFor } from "@/lib/categories";
-import { CURRENCIES } from "@/lib/currencies";
+import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/currencies";
 
 // Shared inputs for expense and income forms. `defaults` pre-fills for editing.
 export default function EntryFields({ kind, defaults = {} }) {
@@ -38,7 +38,7 @@ export default function EntryFields({ kind, defaults = {} }) {
           <select
             name="currency"
             required
-            defaultValue={defaults.currency ?? "USD"}
+            defaultValue={defaults.currency ?? DEFAULT_CURRENCY}
             className="select select-bordered w-full"
           >
             {CURRENCIES.map((c) => (

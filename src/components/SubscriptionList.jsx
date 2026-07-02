@@ -6,9 +6,11 @@ import { deleteSubscription, markSubscriptionPaid, updateSubscription } from "@/
 import { getCategory } from "@/lib/categories";
 import { formatDate, formatMoney } from "@/lib/format";
 import SubscriptionDialog from "./SubscriptionDialog";
+import ConfirmDeleteDialog from "./ConfirmDeleteDialog";
 
 export default function SubscriptionList({ subscriptions, today, dueSoonEnd }) {
   const [editing, setEditing] = useState(null);
+  const [deleting, setDeleting] = useState(null);
 
   if (subscriptions.length === 0) {
     return (
@@ -102,21 +104,14 @@ export default function SubscriptionList({ subscriptions, today, dueSoonEnd }) {
                         >
                           <IconPencil size={16} aria-hidden="true" />
                         </button>
-                        <form
-                          action={deleteSubscription}
-                          onSubmit={(e) => {
-                            if (!confirm(`Delete "${subscription.name}"?`)) e.preventDefault();
-                          }}
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-square btn-xs text-error"
+                          aria-label={`Delete ${subscription.name}`}
+                          onClick={() => setDeleting(subscription)}
                         >
-                          <input type="hidden" name="id" value={subscription.id} />
-                          <button
-                            type="submit"
-                            className="btn btn-ghost btn-square btn-xs text-error"
-                            aria-label={`Delete ${subscription.name}`}
-                          >
-                            <IconTrash size={16} aria-hidden="true" />
-                          </button>
-                        </form>
+                          <IconTrash size={16} aria-hidden="true" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -135,6 +130,16 @@ export default function SubscriptionList({ subscriptions, today, dueSoonEnd }) {
           defaults={editing}
           subscriptionId={editing.id}
           onClose={() => setEditing(null)}
+        />
+      )}
+      {deleting && (
+        <ConfirmDeleteDialog
+          key={deleting.id}
+          title="Delete subscription?"
+          message={`“${deleting.name}” will stop being tracked. Expenses already logged from it are kept.`}
+          action={deleteSubscription}
+          id={deleting.id}
+          onClose={() => setDeleting(null)}
         />
       )}
     </div>

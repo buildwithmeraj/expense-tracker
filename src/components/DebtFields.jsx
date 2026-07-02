@@ -1,4 +1,4 @@
-import { CURRENCIES } from "@/lib/currencies";
+import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/currencies";
 
 export const DEBT_DIRECTIONS = [
   { value: "iOwe", label: "I owe them" },
@@ -59,7 +59,7 @@ export default function DebtFields({ defaults = {} }) {
           <select
             name="currency"
             required
-            defaultValue={defaults.currency ?? "USD"}
+            defaultValue={defaults.currency ?? DEFAULT_CURRENCY}
             className="select select-bordered w-full"
           >
             {CURRENCIES.map((c) => (

@@ -11,6 +11,7 @@ import {
 import { getCategory } from "@/lib/categories";
 import { formatDate, formatMoney } from "@/lib/format";
 import EntryDialog from "./EntryDialog";
+import ConfirmDeleteDialog from "./ConfirmDeleteDialog";
 
 const KIND_CONFIG = {
   expense: { update: updateExpense, remove: deleteExpense, noun: "expense" },
@@ -19,6 +20,7 @@ const KIND_CONFIG = {
 
 export default function EntryList({ kind, entries, periodLabel }) {
   const [editing, setEditing] = useState(null);
+  const [deleting, setDeleting] = useState(null);
   const { update, remove, noun } = KIND_CONFIG[kind];
 
   if (entries.length === 0) {
@@ -91,21 +93,14 @@ export default function EntryList({ kind, entries, periodLabel }) {
                         >
                           <IconPencil size={16} aria-hidden="true" />
                         </button>
-                        <form
-                          action={remove}
-                          onSubmit={(e) => {
-                            if (!confirm(`Delete "${entry.title}"?`)) e.preventDefault();
-                          }}
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-square btn-xs text-error"
+                          aria-label={`Delete ${entry.title}`}
+                          onClick={() => setDeleting(entry)}
                         >
-                          <input type="hidden" name="id" value={entry.id} />
-                          <button
-                            type="submit"
-                            className="btn btn-ghost btn-square btn-xs text-error"
-                            aria-label={`Delete ${entry.title}`}
-                          >
-                            <IconTrash size={16} aria-hidden="true" />
-                          </button>
-                        </form>
+                          <IconTrash size={16} aria-hidden="true" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -125,6 +120,16 @@ export default function EntryList({ kind, entries, periodLabel }) {
           defaults={editing}
           entryId={editing.id}
           onClose={() => setEditing(null)}
+        />
+      )}
+      {deleting && (
+        <ConfirmDeleteDialog
+          key={deleting.id}
+          title={`Delete ${noun}?`}
+          message={`“${deleting.title}” (${formatMoney(deleting.amount, deleting.currency)}) will be permanently removed.`}
+          action={remove}
+          id={deleting.id}
+          onClose={() => setDeleting(null)}
         />
       )}
     </div>

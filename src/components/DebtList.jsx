@@ -13,6 +13,7 @@ import {
 import { deleteDebt, toggleDebtStatus, updateDebt } from "@/app/actions";
 import { formatDate, formatMoney } from "@/lib/format";
 import DebtFields from "./DebtFields";
+import ConfirmDeleteDialog from "./ConfirmDeleteDialog";
 
 function EditDebtDialog({ debt, onClose }) {
   const dialogRef = useRef(null);
@@ -72,6 +73,7 @@ function DirectionBadge({ direction }) {
 
 export default function DebtList({ debts, today }) {
   const [editing, setEditing] = useState(null);
+  const [deleting, setDeleting] = useState(null);
 
   if (debts.length === 0) {
     return (
@@ -161,21 +163,14 @@ export default function DebtList({ debts, today }) {
                         >
                           <IconPencil size={16} aria-hidden="true" />
                         </button>
-                        <form
-                          action={deleteDebt}
-                          onSubmit={(e) => {
-                            if (!confirm(`Delete debt with "${debt.person}"?`)) e.preventDefault();
-                          }}
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-square btn-xs text-error"
+                          aria-label={`Delete debt with ${debt.person}`}
+                          onClick={() => setDeleting(debt)}
                         >
-                          <input type="hidden" name="id" value={debt.id} />
-                          <button
-                            type="submit"
-                            className="btn btn-ghost btn-square btn-xs text-error"
-                            aria-label={`Delete debt with ${debt.person}`}
-                          >
-                            <IconTrash size={16} aria-hidden="true" />
-                          </button>
-                        </form>
+                          <IconTrash size={16} aria-hidden="true" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -187,6 +182,16 @@ export default function DebtList({ debts, today }) {
       </div>
       {editing && (
         <EditDebtDialog key={editing.id} debt={editing} onClose={() => setEditing(null)} />
+      )}
+      {deleting && (
+        <ConfirmDeleteDialog
+          key={deleting.id}
+          title="Delete debt?"
+          message={`The ${formatMoney(deleting.amount, deleting.currency)} debt record with “${deleting.person}” will be permanently removed.`}
+          action={deleteDebt}
+          id={deleting.id}
+          onClose={() => setDeleting(null)}
+        />
       )}
     </div>
   );

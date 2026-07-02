@@ -22,7 +22,7 @@ export default async function SubscriptionsPage() {
   const yearly = subscriptions.filter((s) => s.cycle === "yearly");
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Subscriptions</h1>

@@ -1,6 +1,6 @@
 export default function DebtsLoading() {
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-8">
       <div className="space-y-2">
         <div className="skeleton h-8 w-64" />
         <div className="skeleton h-4 w-48" />

@@ -130,7 +130,7 @@ export default async function DashboardPage() {
   const hasAnyData = expenses.length + incomes.length + debts.length > 0;
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-8">
       <div>
         <h1 className="text-2xl font-bold">
           Hey, {session.user.name?.split(" ")[0] ?? "there"}

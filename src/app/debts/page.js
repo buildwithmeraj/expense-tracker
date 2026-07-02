@@ -18,7 +18,7 @@ export default async function DebtsPage() {
   const owedToYou = sumByCurrency(open.filter((d) => d.direction === "owedToMe"));
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-8">
       <div>
         <h1 className="text-2xl font-bold">Debts</h1>
         <p className="opacity-70">Money you owe and money owed to you.</p>

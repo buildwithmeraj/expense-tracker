@@ -11,7 +11,7 @@ export default async function Navbar() {
 
   return (
     <header className="sticky top-0 z-30 bg-base-100/90 shadow-sm backdrop-blur">
-      <div className="navbar mx-auto max-w-5xl px-4">
+      <div className="navbar mx-auto max-w-6xl px-4">
         <div className="navbar-start gap-1">
           {session?.user && <MobileSidebar />}
           <Logo />
