@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ExpenseTracker
 
-## Getting Started
+A personal expense tracker built with [Next.js 16](https://nextjs.org) (App Router + Server Actions), [MongoDB](https://www.mongodb.com), [NextAuth v5](https://authjs.dev) with Google sign-in, and [daisyUI 5](https://daisyui.com) on Tailwind CSS 4.
 
-First, run the development server:
+Log expenses with categories, see monthly totals and per-category breakdowns, and switch between light/dark themes derived from the app icon.
+
+## Setup
+
+### 1. MongoDB
+
+Run a local MongoDB instance (`sudo systemctl start mongodb`) or grab a free [Atlas](https://www.mongodb.com/atlas) cluster, then set `MONGODB_URI` in `.env.local`.
+
+### 2. Google OAuth
+
+1. Open the [Google Cloud Console credentials page](https://console.cloud.google.com/apis/credentials).
+2. Create an **OAuth client ID** (type: Web application).
+3. Add these URLs:
+   - Authorized JavaScript origin: `http://localhost:3000`
+   - Authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
+4. Copy the client ID and secret into `.env.local` as `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`.
+
+### 3. Environment
+
+Copy `.env.example` to `.env.local` (already created for local dev) and fill in the values. Generate a fresh `AUTH_SECRET` with:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+openssl rand -base64 32
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 4. Run
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000), sign in with Google, and start tracking.
 
-## Learn More
+## Notes
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Amounts display in USD — change the currency in [src/lib/format.js](src/lib/format.js).
+- Auth sessions and users are stored in MongoDB via `@auth/mongodb-adapter`; expenses live in the `expenses` collection of the `expense-tracker` database.
+- The light/dark themes in [src/app/globals.css](src/app/globals.css) are built from the wallet icon's palette (`#2197F2`, `#90CBF8`, `#FDFEFF`).

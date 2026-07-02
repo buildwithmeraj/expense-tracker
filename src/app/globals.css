@@ -1,26 +1,65 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * themes: false — the two @plugin "daisyui/theme" blocks below fully define
+ * light and dark (they merge over the built-in themes of the same name).
+ * Emitting the built-ins here too would duplicate rules that can win the
+ * cascade over these overrides once the minifier merges selectors into :is().
+ */
+@plugin "daisyui" {
+  themes: false;
+}
+
+/*
+ * Both themes are built from the wallet icon (public/icon.png):
+ *   #2197F2 — clasp blue   → primary
+ *   #90CBF8 — wallet body  → secondary
+ *   #FDFEFF — clasp dot    → dark-theme accent / light-theme surface
+ * The light-theme accent is the clasp blue deepened for contrast.
+ */
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  color-scheme: light;
+  --color-base-100: #fdfeff;
+  --color-base-200: #f0f6fc;
+  --color-base-300: #e2edf8;
+  --color-base-content: #182635;
+  --color-primary: #2197f2;
+  --color-primary-content: #fdfeff;
+  --color-secondary: #90cbf8;
+  --color-secondary-content: #0f3a61;
+  --color-accent: #0b5fa8;
+  --color-accent-content: #fdfeff;
+  --color-info: #2197f2;
+  --color-info-content: #fdfeff;
+  --radius-box: 1rem;
+  --radius-field: 0.5rem;
+}
+
+@plugin "daisyui/theme" {
+  name: "dark";
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: #101c2a;
+  --color-base-200: #0c1622;
+  --color-base-300: #08111b;
+  --color-base-content: #d7e6f4;
+  --color-primary: #2197f2;
+  --color-primary-content: #fdfeff;
+  --color-secondary: #90cbf8;
+  --color-secondary-content: #0c2c4a;
+  --color-accent: #fdfeff;
+  --color-accent-content: #0f3a61;
+  --color-neutral: #1a2a3c;
+  --color-neutral-content: #cddef0;
+  --color-info: #2197f2;
+  --color-info-content: #fdfeff;
+  --radius-box: 1rem;
+  --radius-field: 0.5rem;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
